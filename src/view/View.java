@@ -1,6 +1,7 @@
 package view;
 
 import controller.Controller;
+import controller.EventListener;
 
 import javax.swing.*;
 
@@ -8,8 +9,8 @@ import javax.swing.*;
  * Этот класс будет отвечать за графическое представление нашей игры
  */
 public class View extends JFrame {
-    Controller controller;
-    Field field;
+    private Controller controller;
+    private Field field;
 
     public View(Controller controller) {
         this.controller = controller;
@@ -24,5 +25,9 @@ public class View extends JFrame {
         setLocationRelativeTo(null);
         setTitle("Сокобан");
         setVisible(true);
+    }
+
+    public void setEventListener(EventListener eventListener) {
+        field.setEventListener(eventListener);
     }
 }

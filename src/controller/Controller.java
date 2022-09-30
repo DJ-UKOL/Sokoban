@@ -1,6 +1,7 @@
 package controller;
 
 import model.Direction;
+import model.GameObjects;
 import model.Model;
 import view.View;
 
@@ -12,6 +13,7 @@ public class Controller implements EventListener {
         view = new View(this);
         model = new Model();
         view.init();
+        model.restart();
     }
 
     public static void main(String[] args) {
@@ -36,5 +38,9 @@ public class Controller implements EventListener {
     @Override
     public void levelCompleted(int level) {
 
+    }
+
+    public GameObjects getGameObjects() {
+        return model.getGameObjects();
     }
 }

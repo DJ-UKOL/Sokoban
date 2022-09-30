@@ -2,6 +2,7 @@ package view;
 
 import controller.Controller;
 import controller.EventListener;
+import model.GameObjects;
 
 import javax.swing.*;
 
@@ -29,5 +30,14 @@ public class View extends JFrame {
 
     public void setEventListener(EventListener eventListener) {
         field.setEventListener(eventListener);
+    }
+
+    // будет обновлять представление (перерисовывать поле)
+    public void update() {
+        field.repaint();
+    }
+
+    public GameObjects getGameObjects() {
+        return controller.getGameObjects();
     }
 }

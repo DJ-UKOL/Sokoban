@@ -10,26 +10,11 @@ public abstract class CollisionObject extends GameObject {
     }
 
     public boolean isCollision(GameObject gameObject, Direction direction) {
-        if(gameObject == null || direction == null) {
-            return false;
-        }
-        int x = this.getX();
-        int y = this.getY();
-
-        switch(direction) {
-            case LEFT:
-                x -= Model.FIELD_CELL_SIZE;
-                break;
-            case RIGHT:
-                x += Model.FIELD_CELL_SIZE;
-                break;
-            case DOWN:
-                y += Model.FIELD_CELL_SIZE;
-                break;
-            case UP:
-                y -= Model.FIELD_CELL_SIZE;
-                break;
-        }
-        return x == gameObject.getX() && y == gameObject.getY();
+        return switch (direction) {
+            case LEFT -> ((x - Model.FIELD_CELL_SIZE) == gameObject.getX()) && (y == gameObject.getY());
+            case RIGHT -> ((x + Model.FIELD_CELL_SIZE) == gameObject.getX()) && (y == gameObject.getY());
+            case UP -> ((x == gameObject.getX() && (y - Model.FIELD_CELL_SIZE) == gameObject.getY()));
+            case DOWN -> ((x == gameObject.getX() && (y + Model.FIELD_CELL_SIZE) == gameObject.getY()));
+        };
     }
 }

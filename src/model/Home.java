@@ -5,14 +5,21 @@ import java.awt.*;
  * класс будет отвечать за места на игровом поле (дома) в которые нужно сдвинуть все ящики
  */
 public class Home extends GameObject {
+    private static final int SIZE = 2;
 
     public Home(int x, int y) {
-        super(x, y, 2, 2);
+        super(x, y, SIZE, SIZE);
     }
 
     @Override
     public void draw(Graphics graphics) {
         graphics.setColor(Color.RED);
-        graphics.drawOval(getX() - getWidth() / 2, getY() - getHeight() / 2, getWidth(), getHeight());
+
+        int xc = getX();
+        int yc = getY();
+        int height = getHeight();
+        int width = getWidth();
+
+        graphics.drawOval(xc - width / 2, yc - height / 2, width, height);
     }
 }

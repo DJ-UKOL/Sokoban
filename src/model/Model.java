@@ -2,28 +2,46 @@ package model;
 
 import controller.EventListener;
 
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /*
  * Этот класс будет отвечать за модель нашей игры
  */
 public class Model {
-    public static final int FIELD_CELL_SIZE = 20;       // размер ячейки игрового поля
-    EventListener eventListener;
-    private GameObjects gameObjects;                    // будет хранить игровые объекты
-    private int currentLevel = 1;                       // текущий уровень
-    private LevelLoader levelLoader = new LevelLoader(Paths.get("res/levels.txt"));                    // загрузчик уровней
+    public static final int FIELD_CELL_SIZE = 20;
+
+    private GameObjects gameObjects;
+    private int currentLevel = 1;
+    private EventListener eventListener;
+    LevelLoader levelLoader;
+
+    public Model() {
+        try {
+            levelLoader = new LevelLoader(Paths.get(Objects.requireNonNull(getClass().getResource("../res/levels.txt")).toURI()));
+        } catch (URISyntaxException ignored) {
+        }
+    }
 
     public void setEventListener(EventListener eventListener) {
         this.eventListener = eventListener;
     }
 
-    public GameObjects getGameObjects() {
-        return gameObjects;
-    }
+    public void move(Direction direction) {
+        if (checkWallCollision(gameObjects.getPlayer(), direction)) {
+            return;
+        }
 
-    public void restartLevel(int level) {
-        gameObjects = levelLoader.getLevel(level);
+        if (checkBoxCollisionAndMoveIfAvailable(direction)) {
+            return;
+        }
+
+        int dx = direction == Direction.LEFT ? -FIELD_CELL_SIZE : (direction == Direction.RIGHT ? FIELD_CELL_SIZE : 0);
+        int dy = direction == Direction.UP ? -FIELD_CELL_SIZE : (direction == Direction.DOWN ? FIELD_CELL_SIZE : 0);
+        gameObjects.getPlayer().move(dx, dy);
+
+        checkCompletion();
     }
 
     public void restart() {
@@ -35,7 +53,59 @@ public class Model {
         restartLevel(currentLevel);
     }
 
-    public void move(Direction direction) {
-        // add code here
+    public boolean checkWallCollision(CollisionObject gameObject, Direction direction) {
+        for (Wall wall : gameObjects.getWalls()) {
+            if (gameObject.isCollision(wall, direction)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public boolean checkBoxCollisionAndMoveIfAvailable(Direction direction) {
+        for (Box box : gameObjects.getBoxes()) {
+            if (gameObjects.getPlayer().isCollision(box, direction)) {
+                for (Box item : gameObjects.getBoxes()) {
+                    if (!box.equals(item)) {
+                        if (box.isCollision(item, direction)) {
+                            return true;
+                        }
+                    }
+                    if (checkWallCollision(box, direction)) {
+                        return true;
+                    }
+                }
+                int dx = direction == Direction.LEFT ? -FIELD_CELL_SIZE : (direction == Direction.RIGHT ? FIELD_CELL_SIZE : 0);
+                int dy = direction == Direction.UP ? -FIELD_CELL_SIZE : (direction == Direction.DOWN ? FIELD_CELL_SIZE : 0);
+                box.move(dx, dy);
+            }
+        }
+        return false;
+    }
+
+    public void checkCompletion() {
+        int numberOfHomes = gameObjects.getHomes().size();
+        int numberOfHomesWithBox = 0;
+
+        for (Home home : gameObjects.getHomes()) {
+            for (Box box : gameObjects.getBoxes()) {
+                if (box.getX() == home.getX() && box.getY() == home.getY()) {
+                    numberOfHomesWithBox++;
+                }
+            }
+        }
+
+        if (numberOfHomesWithBox == numberOfHomes) {
+            eventListener.levelCompleted(currentLevel);
+        }
+    }
+
+    public void restartLevel(int level) {
+        gameObjects = levelLoader.getLevel(level);
+    }
+
+    public GameObjects getGameObjects() {
+        return gameObjects;
     }
 }
